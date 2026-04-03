@@ -13,48 +13,34 @@ async function main() {
     update: {},
     create: {
       email: "alice@prisma.io",
-      name: "Alice",
-      posts: {
-        create: {
-          title: "Check out Prisma with Next.js",
-          content: "https://www.prisma.io/nextjs",
-          published: true,
-        },
-      },
-    },
-  });
-  const bob = await prisma.user.upsert({
-    where: { email: "bob@prisma.io" },
-    update: {},
-    create: {
-      email: "bob@prisma.io",
-      name: "Bob",
-      posts: {
+      password: "alice",
+      role: "VIEWER",
+      status: "ACTIVE",
+
+      records: {
         create: [
           {
-            title: "Follow Prisma on Twitter",
-            content: "https://twitter.com/prisma",
-            published: true,
-          },
-          {
-            title: "Follow Nexus on Twitter",
-            content: "https://twitter.com/nexusgql",
-            published: true,
+            amount: 99.99,
+            type: "INCOME",
+            category: "Salary",
+            notes: "First income",
+            date: new Date(),
           },
         ],
       },
     },
   });
-  console.log({ alice, bob });
+
+  console.log({ alice });
+  main()
+    .then(async () => {
+      await prisma.$disconnect();
+      await pool.end();
+    })
+    .catch(async (e) => {
+      console.error(e);
+      await prisma.$disconnect();
+      await pool.end();
+      process.exit(1);
+    });
 }
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-    await pool.end();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    await pool.end();
-    process.exit(1);
-  });
