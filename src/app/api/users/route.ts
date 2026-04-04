@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
 import { userSchema } from "@/src/schemas/user.schema";
 import bcrypt from "bcryptjs";
+import { authorize } from "@/src/middleware/authorize";
 
-// /api/users/route.ts
-
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -26,6 +27,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const body = await req.json();
     const parsed = userSchema.safeParse(body);

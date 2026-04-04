@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordSchema } from "@/src/schemas/record.schema";
 import prisma from "@/src/lib/prisma";
+import { authorize } from "@/src/middleware/authorize";
 
 export async function POST(req: NextRequest) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const body = await req.json();
     const parsed = recordSchema.safeParse(body);
@@ -34,6 +37,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const authError = await authorize(["ADMIN", "ANALYST"])(req);
+  if (authError) return authError;
   try {
     const records = await prisma.record.findMany();
     return NextResponse.json({ success: true, records }, { status: 200 });

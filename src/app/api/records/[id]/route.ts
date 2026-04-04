@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
+import { authorize } from "@/src/middleware/authorize";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const authError = await authorize(["ADMIN", "ANALYST"])(req);
+  if (authError) return authError;
   try {
     const record = await prisma.record.findUnique({
       where: { id: params.id },
@@ -27,6 +30,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const record = await prisma.record.findUnique({
       where: { id: params.id },
@@ -53,6 +58,8 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const { amount, category, date } = await req.json();
     const record = await prisma.record.update({

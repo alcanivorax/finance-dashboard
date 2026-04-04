@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
+import { authorize } from "@/src/middleware/authorize";
 
 export async function GET(context: { params: Promise<{ id: string }> }) {
+  const authError = await authorize(["ADMIN"])(new NextRequest(""));
+  if (authError) return authError;
   try {
     const { id: idString } = await context.params;
     const id = Number(idString);
@@ -30,6 +33,8 @@ export async function PUT(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const { id: idString } = await context.params;
     const id = Number(idString);
@@ -60,6 +65,8 @@ export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const { id: idString } = await context.params;
     const id = Number(idString);

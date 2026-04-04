@@ -1,10 +1,17 @@
 import { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 // utils/getUser.ts
 export async function getCurrentUser(req: NextRequest) {
-  // Later replace with JWT/session
-  return {
-    id: "123",
-    role: "ADMIN", // or from token/db
-    status: "ACTIVE",
-  };
+  const token = req.headers.get("authorization")?.split(" ")[1];
+  if (!token) return null;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+      role: string;
+      status: string;
+    };
+    return decoded;
+  } catch {
+    return null;
+  }
 }
