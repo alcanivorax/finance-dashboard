@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const userSchema = z.object({
-  email: z.email({ error: "Invalid email address" }),
+  email: z.email({ message: "Invalid email address" }),
 
   password: z
     .string()

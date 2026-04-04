@@ -24,6 +24,19 @@ export async function POST(req: NextRequest) {
         userId,
       },
     });
+    return NextResponse.json({ success: true, record }, { status: 201 });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const records = await prisma.record.findMany();
+    return NextResponse.json({ success: true, records }, { status: 200 });
   } catch {
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },

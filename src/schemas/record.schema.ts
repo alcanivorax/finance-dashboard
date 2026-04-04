@@ -11,11 +11,11 @@ export interface RECORD {
   userId: number;
 }
 
-export const recordSchema: z.ZodType<RECORD> = z.object({
+export const recordSchema = z.object({
   amount: z.number(),
   type: z.enum(["INCOME", "EXPENSE"]),
   category: z.string(),
   notes: z.string().optional(),
-  date: z.date(),
+  date: z.string(),
   userId: z.number(),
 });
