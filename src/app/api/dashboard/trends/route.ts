@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
       }));
 
     return NextResponse.json({ success: true, data: trends }, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
       { status: 500 },
