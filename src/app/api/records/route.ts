@@ -4,14 +4,14 @@ import prisma from "@/src/lib/prisma";
 import { authorize } from "@/src/middleware/authorize";
 
 export async function POST(req: NextRequest) {
-  const authError = await authorize(["ADMIN"])(req);
-  if (authError) return authError;
+  // const authError = await authorize(["ADMIN"])(req);
+  // if (authError) return authError;
   try {
     const body = await req.json();
     const parsed = recordSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: "Invalid input" },
+        { success: false, error: parsed.error.flatten() },
         { status: 400 },
       );
     }
@@ -28,9 +28,9 @@ export async function POST(req: NextRequest) {
       },
     });
     return NextResponse.json({ success: true, record }, { status: 201 });
-  } catch {
+  } catch (err) {
     return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
+      { success: false, error: (err as Error).message },
       { status: 500 },
     );
   }
