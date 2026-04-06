@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, role: user.role, status: user.status }, JWT_SECRET, {
       expiresIn: "3d",
     });
 

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
-import { userSchema } from "@/src/schemas/user.schema";
-import bcrypt from "bcryptjs";
+import { Prisma } from "@/prisma/generated/prisma/client";
 import { authorize } from "@/src/middleware/authorize";
 
 export async function GET(req: NextRequest) {
@@ -31,44 +30,30 @@ export async function POST(req: NextRequest) {
   if (authError) return authError;
   try {
     const body = await req.json();
-    const parsed = userSchema.safeParse(body);
-    if (!parsed.success) {
+    const { email, role, status } = body;
+
+    if (!email || !role || !status) {
       return NextResponse.json(
-        { success: false, error: parsed.error.flatten() },
+        { success: false, error: "Missing required fields: email, role, status" },
         { status: 400 },
       );
     }
-
-    const { email, password } = parsed.data;
-
-    const validatedEmail = email.toLowerCase();
-
-    const userExists = await prisma.user.findUnique({
-      where: { email: validatedEmail },
-    });
-    if (userExists) {
-      return NextResponse.json(
-        { success: false, error: "User already exsits" },
-        { status: 400 },
-      );
-    }
-
-    const hashPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.create({
-      data: {
-        email: validatedEmail,
-        password: hashPassword,
-        role: "VIEWER",
-        status: "INACTIVE",
-      },
+      data: { email: email.toLowerCase(), password: "", role, status },
     });
 
     return NextResponse.json(
-      { success: true, message: "Account created. Await activation." },
+      { success: true, message: "User created" },
       { status: 201 },
     );
-  } catch {
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return NextResponse.json(
+        { success: false, error: "User already exists" },
+        { status: 400 },
+      );
+    }
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
       { status: 500 },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
 import { authorize } from "@/src/middleware/authorize";
+import { userUpdateSchema } from "@/src/schemas/user.schema";
 
 export async function GET(context: { params: Promise<{ id: string }> }) {
   const authError = await authorize(["ADMIN"])(new NextRequest(""));
@@ -15,12 +16,16 @@ export async function GET(context: { params: Promise<{ id: string }> }) {
         email: true,
         role: true,
         status: true,
+        createdAt: true,
       },
     });
-    return NextResponse.json(
-      { success: true, message: "Fetched data", data: user },
-      { status: 200 },
-    );
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 },
+      );
+    }
+    return NextResponse.json({ success: true, user }, { status: 200 });
   } catch {
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
@@ -39,21 +44,29 @@ export async function PUT(
     const { id: idString } = await context.params;
     const id = Number(idString);
 
-    const { email, role, status } = await req.json();
+    const body = await req.json();
+    const parsed = userUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
     const user = await prisma.user.update({
       where: { id },
-      data: {
-        email,
-        role,
-        status,
+      data: parsed.data,
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
       },
     });
 
-    return NextResponse.json(
-      { success: true, message: "Updated Successfully", data: user },
-      { status: 201 },
-    );
-  } catch (err) {
+    return NextResponse.json({ success: true, user }, { status: 200 });
+  } catch {
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
       { status: 500 },
@@ -72,10 +85,7 @@ export async function DELETE(
     const id = Number(idString);
 
     await prisma.user.delete({ where: { id } });
-    return NextResponse.json(
-      { success: true, message: "Successfully deleted User" },
-      { status: 200 },
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch {
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },

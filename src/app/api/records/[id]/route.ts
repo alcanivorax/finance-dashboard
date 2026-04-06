@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
 import { authorize } from "@/src/middleware/authorize";
+import { recordUpdateSchema } from "@/src/schemas/record.schema";
 
 export async function GET(
   req: NextRequest,
@@ -61,10 +62,17 @@ export async function PUT(
   const authError = await authorize(["ADMIN"])(req);
   if (authError) return authError;
   try {
-    const { amount, category, date } = await req.json();
+    const body = await req.json();
+    const parsed = recordUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
     const record = await prisma.record.update({
       where: { id: params.id },
-      data: { amount, category, date },
+      data: parsed.data,
     });
     return NextResponse.json({ success: true, record }, { status: 200 });
   } catch {

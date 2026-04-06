@@ -19,3 +19,5 @@ export const recordSchema = z.object({
   date: z.string(),
   userId: z.number(),
 });
+
+export const recordUpdateSchema = recordSchema.partial();
