@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/src/lib/prisma";
+import { authorize } from "@/src/middleware/authorize";
 
 export async function GET(req: NextRequest) {
+  const authError = await authorize(["ADMIN", "ANALYST", "VIEWER"])(req);
+  if (authError) return authError;
   try {
     const records = await prisma.record.findMany({
       select: {
@@ -20,25 +23,28 @@ export async function GET(req: NextRequest) {
     const trendsMap: Record<string, { income: number; expense: number }> = {};
 
     records.forEach((record) => {
-      const month = new Date(record.date).toLocaleString("default", {
-        month: "short",
-      });
+      const date = new Date(record.date);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const key = `${year}-${month.toString().padStart(2, "0")}`;
 
-      if (!trendsMap[month]) {
-        trendsMap[month] = { income: 0, expense: 0 };
+      if (!trendsMap[key]) {
+        trendsMap[key] = { income: 0, expense: 0 };
       }
 
       if (record.type === "INCOME") {
-        trendsMap[month].income += record.amount;
+        trendsMap[key].income += record.amount;
       } else {
-        trendsMap[month].expense += record.amount;
+        trendsMap[key].expense += record.amount;
       }
     });
 
-    const trends = Object.entries(trendsMap).map(([month, data]) => ({
-      month,
-      ...data,
-    }));
+    const trends = Object.entries(trendsMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, data]) => ({
+        month,
+        ...data,
+      }));
 
     return NextResponse.json({ success: true, data: trends }, { status: 200 });
   } catch (error) {

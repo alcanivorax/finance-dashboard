@@ -27,10 +27,10 @@ export async function POST(req: NextRequest) {
         userId,
       },
     });
-    return NextResponse.json({ success: true, record }, { status: 201 });
+    return NextResponse.json({ success: true, data: record }, { status: 201 });
   } catch (err) {
     return NextResponse.json(
-      { success: false, error: (err as Error).message },
+      { success: false, error: "Internal server error" },
       { status: 500 },
     );
   }
@@ -40,14 +40,24 @@ export async function GET(req: NextRequest) {
   const authError = await authorize(["ADMIN", "ANALYST"])(req);
   if (authError) return authError;
   try {
-    const records = await prisma.record.findMany();
-    if (records.length === 0) {
-      return NextResponse.json(
-        { success: true, message: "No records found" },
-        { status: 200 },
-      );
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type");
+    const category = searchParams.get("category");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+
+    const where: Record<string, unknown> = {};
+    if (type) where.type = type;
+    if (category) where.category = category;
+    if (startDate || endDate) {
+      where.date = {};
+      if (startDate)
+        (where.date as Record<string, Date>).gte = new Date(startDate);
+      if (endDate) (where.date as Record<string, Date>).lte = new Date(endDate);
     }
-    return NextResponse.json({ success: true, records }, { status: 200 });
+
+    const records = await prisma.record.findMany({ where });
+    return NextResponse.json({ success: true, data: records }, { status: 200 });
   } catch {
     return NextResponse.json(
       { success: false, error: "Internal Server Error" },
