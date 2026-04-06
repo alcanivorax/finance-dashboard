@@ -6,8 +6,10 @@ Backend API for a finance dashboard with role-based access control.
 
 ```bash
 pnpm install
-cp .env.example .env  # Add DATABASE_URL and JWT_SECRET
+cp .env.example .env  # Add DATABASE_URL, JWT_SECRET & SEED_PASSWORD
+npx prisma generate
 npx prisma db push
+npx prisma db seed # push ADMIN
 pnpm dev
 ```
 
