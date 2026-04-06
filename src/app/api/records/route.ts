@@ -4,8 +4,8 @@ import prisma from "@/src/lib/prisma";
 import { authorize } from "@/src/middleware/authorize";
 
 export async function POST(req: NextRequest) {
-  // const authError = await authorize(["ADMIN"])(req);
-  // if (authError) return authError;
+  const authError = await authorize(["ADMIN"])(req);
+  if (authError) return authError;
   try {
     const body = await req.json();
     const parsed = recordSchema.safeParse(body);
@@ -41,6 +41,12 @@ export async function GET(req: NextRequest) {
   if (authError) return authError;
   try {
     const records = await prisma.record.findMany();
+    if (records.length === 0) {
+      return NextResponse.json(
+        { success: true, message: "No records found" },
+        { status: 200 },
+      );
+    }
     return NextResponse.json({ success: true, records }, { status: 200 });
   } catch {
     return NextResponse.json(

@@ -6,8 +6,8 @@ export async function GET(req: NextRequest) {
     const records = await prisma.record.findMany();
     if (records.length === 0) {
       return NextResponse.json(
-        { success: false, error: "No records found" },
-        { status: 404 },
+        { success: true, message: "No records found" },
+        { status: 200 },
       );
     }
 

@@ -4,6 +4,12 @@ import prisma from "@/src/lib/prisma";
 export async function GET(req: NextRequest) {
   try {
     const record = await prisma.record.findMany();
+    if (record.length === 0) {
+      return NextResponse.json(
+        { success: true, message: "No records found" },
+        { status: 200 },
+      );
+    }
     let totalIncome = 0;
     record.forEach((curr) => {
       if (curr.type === "INCOME") totalIncome += curr.amount;
@@ -12,7 +18,7 @@ export async function GET(req: NextRequest) {
     record.forEach((curr) => {
       if (curr.type === "EXPENSE") totalExpense += curr.amount;
     });
-    const balance = totalIncome + totalExpense;
+    const balance = totalIncome - totalExpense;
     return NextResponse.json(
       {
         success: true,
