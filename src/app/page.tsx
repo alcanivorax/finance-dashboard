@@ -3,5 +3,5 @@ export default function Page() {
     <div className="flex">
       <div className="items-center justify-center">Landing Page...</div>
     </div>
-  );
+  )
 }

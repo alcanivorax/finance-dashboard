@@ -27,11 +27,11 @@ Token expires in 3 days.
 
 ## Roles
 
-| Role | Permissions |
-|------|-------------|
-| VIEWER | Read dashboards |
-| ANALYST | All VIEWER + view all records |
-| ADMIN | Full access: manage users, create/update/delete records |
+| Role    | Permissions                                             |
+| ------- | ------------------------------------------------------- |
+| VIEWER  | Read dashboards                                         |
+| ANALYST | All VIEWER + view all records                           |
+| ADMIN   | Full access: manage users, create/update/delete records |
 
 ---
 
@@ -44,6 +44,7 @@ Token expires in 3 days.
 Register new user (no auth required).
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com",
@@ -52,6 +53,7 @@ Register new user (no auth required).
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -68,6 +70,7 @@ Register new user (no auth required).
 Authenticate user.
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com",
@@ -76,6 +79,7 @@ Authenticate user.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -99,11 +103,18 @@ List all users. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
   "users": [
-    { "id": 1, "email": "admin@example.com", "role": "ADMIN", "status": "ACTIVE", "createdAt": "2024-01-01T00:00:00Z" }
+    {
+      "id": 1,
+      "email": "admin@example.com",
+      "role": "ADMIN",
+      "status": "ACTIVE",
+      "createdAt": "2024-01-01T00:00:00Z"
+    }
   ]
 }
 ```
@@ -119,6 +130,7 @@ Create user. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Request:**
+
 ```json
 {
   "email": "newuser@example.com",
@@ -128,6 +140,7 @@ Create user. **ADMIN only.**
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -146,10 +159,17 @@ Get single user. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
-  "user": { "id": 1, "email": "user@example.com", "role": "VIEWER", "status": "ACTIVE", "createdAt": "2024-01-01T00:00:00Z" }
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "role": "VIEWER",
+    "status": "ACTIVE",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
 }
 ```
 
@@ -164,6 +184,7 @@ Update user. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Request (all fields optional):**
+
 ```json
 {
   "email": "newemail@example.com",
@@ -173,10 +194,17 @@ Update user. **ADMIN only.**
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
-  "user": { "id": 1, "email": "newemail@example.com", "role": "ANALYST", "status": "ACTIVE", "createdAt": "2024-01-01T00:00:00Z" }
+  "user": {
+    "id": 1,
+    "email": "newemail@example.com",
+    "role": "ANALYST",
+    "status": "ACTIVE",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
 }
 ```
 
@@ -193,6 +221,7 @@ Delete user. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 { "success": true }
 ```
@@ -220,11 +249,20 @@ List records with optional filtering. **ADMIN, ANALYST only.**
 **Example:** `GET /api/records?type=EXPENSE&category=Food&startDate=2024-01-01`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
   "data": [
-    { "id": "uuid", "amount": 100.50, "type": "INCOME", "category": "Salary", "notes": "Monthly pay", "date": "2024-01-15T00:00:00Z", "userId": 1 }
+    {
+      "id": "uuid",
+      "amount": 100.5,
+      "type": "INCOME",
+      "category": "Salary",
+      "notes": "Monthly pay",
+      "date": "2024-01-15T00:00:00Z",
+      "userId": 1
+    }
   ]
 }
 ```
@@ -240,9 +278,10 @@ Create record. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Request:**
+
 ```json
 {
-  "amount": 1500.00,
+  "amount": 1500.0,
   "type": "INCOME",
   "category": "Salary",
   "notes": "Monthly salary",
@@ -254,6 +293,7 @@ Create record. **ADMIN only.**
 **Validation:** `amount` (number), `type` (INCOME|EXPENSE), `category` (string), `date` (string), `userId` (number). `notes` optional.
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -272,6 +312,7 @@ Get single record. **ADMIN, ANALYST, VIEWER only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -290,9 +331,10 @@ Update record. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Request (all fields optional):**
+
 ```json
 {
-  "amount": 200.00,
+  "amount": 200.0,
   "type": "EXPENSE",
   "category": "Food",
   "notes": "Updated notes",
@@ -301,6 +343,7 @@ Update record. **ADMIN only.**
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -319,6 +362,7 @@ Delete record. **ADMIN only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 { "success": true }
 ```
@@ -336,13 +380,14 @@ Get financial summary. **ADMIN, ANALYST, VIEWER only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
   "data": {
-    "totalIncome": 5000.00,
-    "totalExpense": 1500.00,
-    "balance": 3500.00
+    "totalIncome": 5000.0,
+    "totalExpense": 1500.0,
+    "balance": 3500.0
   }
 }
 ```
@@ -358,6 +403,7 @@ Get totals grouped by category. **ADMIN, ANALYST, VIEWER only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -380,6 +426,7 @@ Get monthly income/expense trends. **ADMIN, ANALYST, VIEWER only.**
 **Headers:** `Authorization: Bearer <token>`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -423,15 +470,15 @@ Validation errors include field-level details:
 
 ## Status Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | Success |
-| 201 | Created |
-| 400 | Bad Request (validation/input error) |
-| 401 | Unauthorized (no/invalid token) |
-| 403 | Forbidden (insufficient role or inactive account) |
-| 404 | Not Found |
-| 500 | Internal Server Error |
+| Code | Meaning                                           |
+| ---- | ------------------------------------------------- |
+| 200  | Success                                           |
+| 201  | Created                                           |
+| 400  | Bad Request (validation/input error)              |
+| 401  | Unauthorized (no/invalid token)                   |
+| 403  | Forbidden (insufficient role or inactive account) |
+| 404  | Not Found                                         |
+| 500  | Internal Server Error                             |
 
 ---
 
